@@ -56,7 +56,7 @@ im2=mr_meanb0.nii.gz
 flirt -in \$im1 -ref \$im2 -out brain_flt -omat brain2diff.mat -v
 im1=brain_flt.nii.gz
 
-ANTS 3 -m PR[\$im2,\$im1,1,2] -i 100x100x20 -o str2diff_synants2.nii.gz -t SyN[0.3] -r Gauss[2,0]
+ANTS 3 -m PR[\$im2,\$im1,1,2] -i 100x100x20 -o str2diff_synantsWarp2.nii.gz -t SyN[0.3] -r Gauss[2,0]
 WarpImageMultiTransform 3 \$im1 brain_diff_synants.nii.gz -R mr_meanb0.nii.gz str2diff_synantsWarp2.nii.gz str2diff*.txt
 fi
 
