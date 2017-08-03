@@ -43,59 +43,61 @@ cd /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/\${SUBJECT}/dmri2
 mkdir xfm
 
 ### flirt 
+echo *****NOW GENERATING ANAT2DIFF.FLT.MAT *****
 mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz
-while [ ! -e brain_anat_orig.nii.gz ]; do sleep 1; done
+sleep 5
 
 /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl  brain_anat_orig.nii.gz brain_anat.nii.gz
-while [ ! -e brain_anat.nii.gz ]; do sleep 1; done
+sleep 5
 
 mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force
-while [ ! -e mr_meanb0.nii.gz ]; do sleep 1; done
+sleep 5
 
 flirt -in brain_anat.nii.gz -ref mr_meanb0.nii.gz -out brain_anat2diff -omat anat2diff.flt.mat -v
-while [ ! -e anat2diff.flt.mat ]; do sleep 1; done
+sleep 5
 
 
 ### 5TTGEN
-#if [ ! -e 5tt.nii.gz ]; then
+echo ***** NOW 5TTGEN *****
+
 mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl /tmp/tmp.nii.gz T1_flip.nii.gz
-while [ ! -e T1_flip.nii.gz ]; do sleep 1; done
-
-
+sleep 5
 
 flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v
-while [ ! -e T1_2diff_flt.nii.gz ]; do sleep 1; done
+sleep 5
 
 5ttgen fsl T1_2diff_flt.nii.gz 5tt.mif.gz -force -nthreads $nthreadsX2
+
 mrconvert 5tt.mif.gz 5tt.nii.gz -force
-while [ ! -e 5tt.nii.gz ]; do sleep 1; done
+sleep 5
 
 5tt2gmwmi 5tt.mif.gz 5tt_gmwmi_mask.mif.gz -nthreads $nthreadsX2 -force
-#fi
-
+sleep 5
 
 ### APARC+ASEG to diff
 for im in aparc+aseg aparc.a2009s+aseg
 do
    echo ****NOW CONVERTING MGZ TO NII
    mri_convert ../mri/\${im}.mgz \${im}.nii.gz
-   while [ ! -e \${im}.nii.gz ]; do sleep 1; done
+   sleep 5
+   
    echo ****FLIPING FOR FSL
    /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl \${im}.nii.gz \${im}_flip.nii.gz
-   while [ ! -e \${im}_flip.nii.gz ]; do sleep 1; done
+   sleep 5
+   
    echo ****NOW FLIRTING
-
    flirt -in \${im}_flip.nii.gz -out \${im}_2_diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour
-   while [ ! -e \${im}_flip_flt.nii.gz ]; do sleep 1; done
+   sleep 5
 
 done
 
 
 ### labelconvert for aparc+aseg and aparc.a2009+aseg
 labelconvert aparc+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_default.txt nodes_aparc+aseg.mif.gz -force
-while [ ! -e nodes_aparc+aseg.mif.gz ]; do sleep 1; done
+sleep 5
+
 labelconvert aparc.a2009s+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_a2009s.txt nodes_aparc.a2009s+aseg.mif.gz -force
-while [ ! -e nodes_aparc.a2009s+aseg.mif.gz ]; do sleep 1; done
+sleep 5
 #labelsgmfix nodes.mif.gz T1_diff.nii.gz fs_default.txt nodes_fixSGM.mif.gz -sgm_amyg_hipp -premasked -verbose -nthreads 12
 ############
 " >$CMD1
@@ -105,7 +107,7 @@ while [ ! -e nodes_aparc.a2009s+aseg.mif.gz ]; do sleep 1; done
 echo $CMD1 >> $CMD1_batch
 done
 
-prepid=`$code/fsl_sub_hpc_3 -s smp,$nthreads -l $logdir -t ${CMD1_batch}`
+#prepid=`$code/fsl_sub_hpc_3 -s smp,$nthreads -l $logdir -t ${CMD1_batch}`
 echo ${CMD1_batch}
 
 for s in `cat $subjectlist`
@@ -155,4 +157,4 @@ done
 #$code/fsl_sub_hpc_36 $monk/data/cmd/cmd2_${s}  
 #echo $jobid >> $monk/data/cmd/jobid
 
-$code/fsl_sub_hpc_3 -N connectome -s smp,$nthreads -j $prepid -l $logdir -t ${CMD2_batch}
+echo $code/fsl_sub_hpc_3 -N connectome -s smp,$nthreads -j $prepid -l $logdir -t ${CMD2_batch}
