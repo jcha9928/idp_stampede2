@@ -70,7 +70,7 @@ while [ ! -e T1_2diff_flt.nii.gz ]; do sleep 1; done
 mrconvert 5tt.mif.gz 5tt.nii.gz -force
 while [ ! -e 5tt.nii.gz ]; do sleep 1; done
 
-5tt2gmwmi 5tt.mif.gz 5tt_gmwmi_mask.mif.gz -nthreads $nthreadsX2
+5tt2gmwmi 5tt.mif.gz 5tt_gmwmi_mask.mif.gz -nthreads $nthreadsX2 -force
 #fi
 
 
