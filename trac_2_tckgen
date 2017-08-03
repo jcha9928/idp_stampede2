@@ -40,28 +40,20 @@ source /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/FreeSurferEnv.sh
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=$nthreadsX2
 SUBJECT=${s}_1mm_flair
 cd /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/\${SUBJECT}/dmri2
+mkdir xfm
 
-### ATNS warping
-if [ ! -e brain_flip.nii.gz ];then
-   mri_convert ../mri/brain.mgz /tmp/tmp.nii.gz && /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl /tmp/tmp.nii.gz brain_flip.nii.gz
-fi
+### flirt 
+mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz
+while [ ! -e brain_anat_orig.nii.gz ]; do sleep 1; done
 
-if [ ! -e mr_meanb0.nii.gz ];then mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz; fi
+/ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl  brain_anat_orig.nii.gz brain_anat.nii.gz
+while [ ! -e brain_anat.nii.gz ]; do sleep 1; done
 
-ln -s brain_flip.nii.gz brain.nii.gz
+mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force
+while [ ! -e mr_meanb0.nii.gz ]; do sleep 1; done
 
-if [ ! -e str2diff_synants2Warp.nii.gz ]; then
-im1=brain.nii.gz
-im2=mr_meanb0.nii.gz
-flirt -in \$im1 -ref \$im2 -out brain_flt -omat brain2diff.mat 
-im1=brain_flt.nii.gz
-
-ANTS 3 -m PR[\$im2,\$im1,1,2] -i 100x100x20 -o str2diff_synants2.nii.gz -t SyN[0.3] -r Gauss[2,0]
-WarpImageMultiTransform 3 \$im1 brain_diff_synants.nii.gz -R mr_meanb0.nii.gz str2diff_synant2Warp.nii.gz str2diff_synantsWarp2Affine.txt
-fi
-
-#WarpImageMultiTransform 3 T1_diff.nii.gz T1_diff_warped_synants.nii.gz -R mr_meanb0.nii.gz str2diff_synantsWarp.nii.gz str2diff*.txt
-#WarpImageMultiTransform 3 T1_diff.nii.gz T1_diff_warped_synants.nii.gz -R mr_meanb0.nii.gz str2diff_synantsWarp.nii.gz str2diff*.txt --use-NN
+flirt -in brain_anat.nii.gz -ref mr_meanb0.nii.gz -out brain_anat2diff -omat anat2diff.flt.mat -v
+while [ ! -e anat2diff.flt.mat ]; do sleep 1; done
 
 
 ### 5TTGEN
@@ -69,15 +61,12 @@ fi
 mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl /tmp/tmp.nii.gz T1_flip.nii.gz
 while [ ! -e T1_flip.nii.gz ]; do sleep 1; done
 
-mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force
-while [ ! -e mr_meanb0.nii.gz ]; do sleep 1; done
 
-flirt -in T1_flip.nii.gz -out T1_flip_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init brain2diff.mat
-WarpImageMultiTransform 3 T1_flip_flt.nii.gz T1_diff_synants2.nii.gz -R mr_meanb0.nii.gz str2diff_synants2Warp.nii.gz str2diff_synantsWarp2Affine.txt
 
-while [ ! -e T1_diff_synants2.nii.gz ]; do sleep 1; done
+flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v
+while [ ! -e T1_2diff_flt.nii.gz ]; do sleep 1; done
 
-5ttgen fsl T1_diff_synants2.nii.gz 5tt.mif.gz -force -nthreads $nthreadsX2
+5ttgen fsl T1_2diff_flt.nii.gz 5tt.mif.gz -force -nthreads $nthreadsX2
 mrconvert 5tt.mif.gz 5tt.nii.gz -force
 while [ ! -e 5tt.nii.gz ]; do sleep 1; done
 
@@ -96,17 +85,16 @@ do
    while [ ! -e \${im}_flip.nii.gz ]; do sleep 1; done
    echo ****NOW FLIRTING
 
-   flirt -in \${im}_flip.nii.gz -out \${im}_flip_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init brain2diff.mat -interp nearestneighbour
-   WarpImageMultiTransform 3 \${im}_flip_flt.nii.gz \${im}_diff_synants.nii.gz -R mr_meanb0.nii.gz str2diff_synants2Warp.nii.gz str2diff_synantsWarp2Affine.txt --use-NN
-   while [ ! -e \${im}_diff_synants.nii.gz ]; do sleep 1; done
+   flirt -in \${im}_flip.nii.gz -out \${im}_2_diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour
+   while [ ! -e \${im}_flip_flt.nii.gz ]; do sleep 1; done
 
 done
 
 
 ### labelconvert for aparc+aseg and aparc.a2009+aseg
-labelconvert aparc+aseg_diff_synants.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_default.txt nodes_aparc+aseg.mif.gz -force
+labelconvert aparc+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_default.txt nodes_aparc+aseg.mif.gz -force
 while [ ! -e nodes_aparc+aseg.mif.gz ]; do sleep 1; done
-labelconvert aparc.a2009s+aseg_diff_synants.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_a2009s.txt nodes_aparc.a2009s+aseg.mif.gz -force
+labelconvert aparc.a2009s+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_a2009s.txt nodes_aparc.a2009s+aseg.mif.gz -force
 while [ ! -e nodes_aparc.a2009s+aseg.mif.gz ]; do sleep 1; done
 #labelsgmfix nodes.mif.gz T1_diff.nii.gz fs_default.txt nodes_fixSGM.mif.gz -sgm_amyg_hipp -premasked -verbose -nthreads 12
 ############
