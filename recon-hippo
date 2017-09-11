@@ -32,5 +32,5 @@ $recon1
 EOM
 done
 
-#$code/fsl_sub_hpc_12 -t $CMD1
-echo $CMD1
+$code/fsl_sub_hpc_12 -t $CMD1
+#echo $CMD1
