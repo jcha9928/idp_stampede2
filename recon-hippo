@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# usage recon-hippo <name of subject list file>
 list=$1
 IDP=/ifs/scratch/pimri/posnerlab/1anal/IDP
 
