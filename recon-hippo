@@ -16,14 +16,20 @@ IMPATH=/ifs/scratch/pimri/posnerlab/1anal/IDP/data/${s}
 #T1=`ls $IMPATH/t1*nii*`
 SUBJECT=${s}_1mm_flair
 
-recon1=/ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job/hippo.${s}
-rm -rf $recon1
+cat<<EOM >$CMD1
+/ifs/home/msph/epi/jep2111/app/freesurfer//bin/segmentSF_T1.sh /ifs/home/msph/epi/jep2111/app/freesurfer//MCRv80 \
+/ifs/home/msph/epi/jep2111/app/freesurfer/ ${SUBJECT} /ifs/scratch/pimri/posnerlab/1anal/IDP/fs left
+/ifs/home/msph/epi/jep2111/app/freesurfer//bin/segmentSF_T1.sh /ifs/home/msph/epi/jep2111/app/freesurfer//MCRv80 \
+/ifs/home/msph/epi/jep2111/app/freesurfer/ ${SUBJECT} /ifs/scratch/pimri/posnerlab/1anal/IDP/fs right
 
-cat<<EOC >$recon1
-recon-all -hippocampal-subfields-T1 -s ${SUBJECT}
-EOC
+#recon1=/ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job/hippo.${s}
+#rm -rf $recon1
 
-chmod +x $recon1
+#cat<<EOC >$recon1
+#recon-all -hippocampal-subfields-T1 -s ${SUBJECT}
+#EOC
+
+#chmod +x $recon1
 
 
 
