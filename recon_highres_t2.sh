@@ -22,7 +22,7 @@ SUBJECTS_DIR=/ifs/scratch/pimri/posnerlab/1anal/IDP/fs
 echo NOW PERFORMING RECON-ALL
 #recon-all -all -s ${SUBJECT}.test_mpi128 -hires -i $T1 -expert $EXPERTOPT -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1 -openmp 64 
 #recon-all -all -s ${SUBJECT}_1mm_mpi12 -i $T1 -expert $EXPERTOPT -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1T2 $FLAIR flair -openmp 12
-recon-all -all -s ${SUBJECT}_1mm_mpi8 -i $T1 -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1T2 $FLAIR flair -parallel -openmp 8
+recon-all -all -s ${SUBJECT}_1mm_mpi16 -i $T1 -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1T2 $FLAIR flair -parallel -openmp 16
 EOC
 
 chmod +x $recon
@@ -32,8 +32,8 @@ cat<<-EOM >$CMD
 #!/bin/bash
 #$ -V
 #$ -cwd -S /bin/bash -N recon
-#$ -l mem=2G,time=12::
-#$ -pe orte 8 
+#$ -l mem=1G,time=12::
+#$ -pe orte 16 
 #$ -o /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -e /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job 
 source /ifs/home/msph/epi/jep2111/.bashrc
 . /nfs/apps/openmpi/current/setenv.sh
