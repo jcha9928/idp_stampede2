@@ -1,7 +1,7 @@
 #!/bin/bash
 
 year=2011
-s=10004953_20111116
+s=11454078
 
 SUBJECTS_DIR=/ifs/scratch/pimri/posnerlab/1anal/IDP/fs
 
