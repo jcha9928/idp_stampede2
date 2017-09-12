@@ -35,10 +35,9 @@ cat<<-EOM >$CMD
 #$ -l mem=1G,time=12::
 #$ -pe orte 12
 #$ -o /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -e /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job 
-#$ -l infiniband=TRUE
 source /ifs/home/msph/epi/jep2111/.bashrc
 . /nfs/apps/openmpi/current/setenv.sh
-mpirun $recon
+$recon
 EOM
 
 qsub $CMD
