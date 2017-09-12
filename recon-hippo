@@ -19,12 +19,12 @@ IMPATH=/ifs/scratch/pimri/posnerlab/1anal/IDP/data/${s}
 #T1=`ls $IMPATH/t1*nii*`
 SUBJECT=${s}_1mm_flair
 
-cat<<EOM >$CMD1
+cat<<EOM >>$CMD1
 /ifs/home/msph/epi/jep2111/app/freesurfer//bin/segmentSF_T1.sh /ifs/home/msph/epi/jep2111/app/freesurfer//MCRv80 \
 /ifs/home/msph/epi/jep2111/app/freesurfer/ ${SUBJECT} /ifs/scratch/pimri/posnerlab/1anal/IDP/fs left
 EOM
 
-cat<<EOC >$CMD2
+cat<<EOC >>$CMD2
 /ifs/home/msph/epi/jep2111/app/freesurfer//bin/segmentSF_T1.sh /ifs/home/msph/epi/jep2111/app/freesurfer//MCRv80 \
 /ifs/home/msph/epi/jep2111/app/freesurfer/ ${SUBJECT} /ifs/scratch/pimri/posnerlab/1anal/IDP/fs right
 EOC
