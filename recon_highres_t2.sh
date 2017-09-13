@@ -22,7 +22,7 @@ SUBJECTS_DIR=/ifs/scratch/pimri/posnerlab/1anal/IDP/fs
 echo NOW PERFORMING RECON-ALL
 #recon-all -all -s ${SUBJECT}.test_mpi128 -hires -i $T1 -expert $EXPERTOPT -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1 -openmp 64 
 #recon-all -all -s ${SUBJECT}_1mm_mpi12 -i $T1 -expert $EXPERTOPT -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1T2 $FLAIR flair -openmp 12
-recon-all -all -s ${SUBJECT}_1mm_mpi12_smp -i $T1 -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1T2 $FLAIR flair -parallel -openmp 12
+recon-all -all -s ${SUBJECT}_1mm_mpi2_smp -i $T1 -FLAIR $FLAIR -FLAIRpial -hippocampal-subfields-T1T2 $FLAIR flair -parallel -openmp 2
 EOC
 
 chmod +x $recon
@@ -32,8 +32,8 @@ cat<<-EOM >$CMD
 #!/bin/bash
 #$ -V
 #$ -cwd -S /bin/bash -N recon
-#$ -l mem=1G,time=12::
-#$ -pe smp 12
+#$ -l mem=6G,time=12::
+#$ -pe smp 2
 ##$ -pe orte 16
 ##$ -l infiniband=TRUE
 #$ -o /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -e /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job 
