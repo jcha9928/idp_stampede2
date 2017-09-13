@@ -49,7 +49,7 @@ EOC
 #EOM
 done
 
-#$code/fsl_sub_hpc_12 -t $CMD1
+echo $code/fsl_sub_hpc_12 -t $CMD1
 echo $code/fsl_sub_hpc_12 -t $CMD2
 
 #echo $CMD1
