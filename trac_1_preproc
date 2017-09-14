@@ -2,7 +2,7 @@
 
 list=$1
 threads=4
-threadsX2=$((${threads}*2))
+#threadsX2=$((${threads}*2))
 
 IDP=/ifs/scratch/pimri/posnerlab/1anal/IDP
 
@@ -15,11 +15,14 @@ CMD=/ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job/cmd1.trac.${s}
 rm $CMD
 SUBJECT=${s}_1mm_flair
 
+if [ ! -e /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/${SUBJECT}/dmri2 ]; then
+
 cat<<EOC >$CMD
 #!/bin/bash
 source ~/.bashrc
 workingdir=/ifs/scratch/pimri/posnerlab/1anal/IDP/fs/${SUBJECT}/dmri2
 echo $workingdir
+
 if [ ! -e \$workingdir ]; then mkdir \$workingdir; fi
 cd \$workingdir
 pwd
@@ -95,8 +98,11 @@ fi
 echo "I THINK EVERYTHING IS DONE BY NOW"
 EOC
 
+
 chmod +x $CMD
 echo $CMD>>$CMD_batch
+
+fi
 done
 
 ### batch submission
