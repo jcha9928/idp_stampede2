@@ -108,4 +108,4 @@ done
 ### batch submission
 
 echo $CMD_batch
-echo $code/fsl_sub_hpc_1 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
+$code/fsl_sub_hpc_1 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
