@@ -1,7 +1,7 @@
 #!/bin/bash
 
 list=$1
-threads=12
+threads=2
 #threadsX2=$((${threads}*2))
 
 IDP=/ifs/scratch/pimri/posnerlab/1anal/IDP
@@ -94,8 +94,8 @@ if [ ! -e tissueRGB.mif.gz ]; then
    mrconvert WM_FODs.mif.gz - -coord 3 0 | mrcat csf.mif.gz gm.mif.gz - tissueRGB.mif.gz -axis 3
 fi
 
-mrconvert mr_dwi_denoised_preproc_biasCorr.mif.gz mr_dwi_denoised_preproc_biasCorr.nii.gz
-mrconvert mr_dilate_mask.mif.gz mr_dilate_mask.nii.gz
+mrconvert mr_dwi_denoised_preproc_biasCorr.mif.gz mr_dwi_denoised_preproc_biasCorr.nii.gz -nthreads $threads
+mrconvert mr_dilate_mask.mif.gz mr_dilate_mask.nii.gz -nthreads $threads
 dtifit -k mr_dwi_denoised_preproc_biasCorr.nii.gz -o dtifit -m mr_dilate_mask.nii.gz -r dti.bvec -b dti.bval -V
 
 
@@ -113,4 +113,4 @@ done
 ### batch submission
 
 echo $CMD_batch
-$code/fsl_sub_hpc_1 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
+$code/fsl_sub_hpc_3 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
