@@ -40,7 +40,7 @@ if [ ! -e mr_fod.mif.gz ];then
 fi
 
 #%% 3. denoising
-if [ ! -e mmr_dwi_denoised.mif.gz ];then
+if [ ! -e mr_dwi_denoised.mif.gz ];then
     dwidenoise mr_dwi.mif.gz -force mr_dwi_denoised.mif.gz -nthreads $threads
 fi
 
