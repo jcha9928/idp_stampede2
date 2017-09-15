@@ -1,7 +1,7 @@
 #!/bin/bash
 
 list=$1
-threads=2
+threads=1
 #threadsX2=$((${threads}*2))
 
 IDP=/ifs/scratch/pimri/posnerlab/1anal/IDP
@@ -113,4 +113,5 @@ done
 ### batch submission
 
 echo $CMD_batch
-$code/fsl_sub_hpc_3 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
+#$code/fsl_sub_hpc_3 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
+$code/fsl_sub_hpc_6 -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
