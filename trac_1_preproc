@@ -8,7 +8,7 @@ threads=1
 IDP=/scratch/03263/jcha9928/data/idp/
 
 #CMD_batch=/ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job/cmd1.batch.trac.${list}
-CMD_batch=$IDP/job/code/idp_stampede2
+CMD_batch=/scratch/03263/jcha9928/data/idp/code/idp_stampede2/job/idp_stampede2
 rm $CMD_batch
 
 for s in `cat $IDP/data/$list` # e.g., list_subject_dti_t1
