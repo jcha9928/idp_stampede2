@@ -145,7 +145,7 @@ module load launcher
 sleep 3
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 export LAUNCHER_RMI=SLURM
-export LAUNCHER_JOB_FILE=`echo \$batch_script`
+export LAUNCHER_JOB_FILE=`echo \$CMD_batch`
 
 # Launch MPI code...
 $LAUNCHER_DIR/paramrun
