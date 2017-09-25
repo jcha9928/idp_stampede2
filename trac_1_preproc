@@ -38,49 +38,49 @@ cp $IDP/data/$s/dti.bvec ./
 cp $IDP/data/$s/dti.bval ./
 
 #%% 2. DWI processing2-converting nifti to mif%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if [ ! -e mr_dwi.mif.gz  ];then
+#if [ ! -e mr_dwi.mif.gz  ];then
     mrconvert dti.nii.gz -force mr_dwi.mif.gz -fslgrad dti.bvec dti.bval -datatype float32 -stride 0,0,0,1 -nthreads $threads
-fi
+#fi
 
 #%% 3. denoising
-if [ ! -e mr_dwi_denoised.mif.gz ];then
+#if [ ! -e mr_dwi_denoised.mif.gz ];then
     dwidenoise mr_dwi.mif.gz -force mr_dwi_denoised.mif.gz -nthreads $threads
-fi
+#fi
 
 #%% 4. dwipreproc -eddy current
-if [ ! -e mr_dwi_denoised_preproc.mif.gz ];then
+#if [ ! -e mr_dwi_denoised_preproc.mif.gz ];then
     dwipreproc PA mr_dwi_denoised.mif.gz -force mr_dwi_denoised_preproc.mif.gz -rpe_none -nthreads $threads
-fi
+#fi
 
 #%% 5. mask and bias field correction
-if [ ! -e mr_eroded_mask.mif.gz ]; then
+#if [ ! -e mr_eroded_mask.mif.gz ]; then
      dwi2mask mr_dwi_denoised_preproc.mif.gz - | maskfilter - erode -npass 7 -force mr_eroded_mask.mif.gz -nthreads $threads
-fi
+#fi
 
 #%% 6. bias field correction
-if [ ! -e mr_dwi_denoised_preproc_biasCorr.mif.gz ]; then
+#if [ ! -e mr_dwi_denoised_preproc_biasCorr.mif.gz ]; then
      dwibiascorrect mr_dwi_denoised_preproc.mif.gz -force mr_dwi_denoised_preproc_biasCorr.mif.gz -ants -mask mr_eroded_mask.mif.gz -fslgrad dti.bvec dti.bval -nthreads $threads
-fi
+#fi
 
 
 #%% 7. generating b0 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if [ ! -e mr_meanb0.mif.gz ];then
+#if [ ! -e mr_meanb0.mif.gz ];then
      dwiextract mr_dwi_denoised_preproc_biasCorr.mif.gz - -bzero -nthreads $threadsX2 | mrmath - mean -force mr_meanb0.mif.gz -axis 3 -nthreads $threads
-fi
+#fi
 
 #%% 8. upsampling %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for im in mr_dwi_denoised_preproc_biasCorr mr_eroded_mask mr_meanb0;
 do 
-     if [ ! -e \${im}_upsample.mif.gz ];then
+    # if [ ! -e \${im}_upsample.mif.gz ];then
      mrresize \${im}.mif.gz -scale 2.0 -force \${im}_upsample.mif.gz -nthreads $threads
-     fi
+     #fi
 done
 
 
 #%% 9. dwi2response-subject level %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if [ ! -e response_wm.txt ]; then
+#if [ ! -e response_wm.txt ]; then
     dwi2response dhollander -mask mr_eroded_mask.mif.gz -voxels mr_voxels_eroded.mif.gz mr_dwi_denoised_preproc_biasCorr.mif.gz response_wm.txt response_gm.txt response_csf.txt -force -nthreads $threads
-fi
+#fi
 
 
 #%% FOD%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
