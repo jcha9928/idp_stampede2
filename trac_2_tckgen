@@ -40,7 +40,7 @@ source /work/03263/jcha9928/stampede2/app/freesurfer/FreeSurferEnv.sh
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=$nthreads
 SUBJECT=${s}_1mm_flair
 #cd /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/\${SUBJECT}/dmri2
-$IDP/fs/\${SUBJECT}/dmri3
+cd $IDP/fs/\${SUBJECT}/dmri3
 mkdir xfm
 
 ### flirt 
