@@ -1,8 +1,8 @@
 #! /bin/bash
-## usage: trac_2_tckgen -t 6 -b 0
+## usage: bash trac_2_tckgen -t 6 -b 0
 
 
-while [ $1 != -- ] ; do
+while [ $2 != -- ] ; do
   case $1 in
     -t)
       nthreads=$2;
@@ -13,8 +13,8 @@ while [ $1 != -- ] ; do
    esac
     shift
 done
-
-logdir=/ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job
+IDP=/scratch/03263/jcha9928/data/idp/
+logdir=/scratch/03263/jcha9928/data/idp//code/idp/job
 CMD1_batch=$logdir/batch${nbatch}_5ttgen
 CMD2_batch=$logdir/batch${nbatch}_tckgen
 
@@ -24,7 +24,7 @@ rm -rf $CMD2_batch
 #nthreadsX2=$((${nthreads}*2))
 
 
-subjectlist=/ifs/scratch/pimri/posnerlab/1anal/IDP/data/list_dti_batch${nbatch}
+subjectlist=/scratch/03263/jcha9928/data/idp/data/list_subject_dti_t1.txt
 for s in `cat $subjectlist`
 do
 
@@ -35,19 +35,21 @@ rm -rf $CMD1
 
 echo "#!/bin/bash
 source ~/.bashrc
-FREESURFER_HOME=$work/freesurfer_dev/freesurfer
-source /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/FreeSurferEnv.sh
+FREESURFER_HOME=/work/03263/jcha9928/stampede2/app/freesurfer
+source /work/03263/jcha9928/stampede2/app/freesurfer/FreeSurferEnv.sh
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=$nthreads
 SUBJECT=${s}_1mm_flair
-cd /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/\${SUBJECT}/dmri2
+#cd /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/\${SUBJECT}/dmri2
+$IDP/fs/\${SUBJECT}/dmri3
 mkdir xfm
 
 ### flirt 
 echo *****NOW GENERATING ANAT2DIFF.FLT.MAT *****
-mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz
+mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz 
 sleep 5
 
-/ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl  brain_anat_orig.nii.gz brain_anat.nii.gz
+#/ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl  brain_anat_orig.nii.gz brain_anat.nii.gz
+orientLAS brain_anat_orig.nii.gz brain_anat.nii.gz
 sleep 5
 
 mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force
@@ -60,7 +62,7 @@ sleep 5
 ### 5TTGEN
 echo ***** NOW 5TTGEN *****
 
-mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl /tmp/tmp.nii.gz T1_flip.nii.gz
+mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && orientLAS /tmp/tmp.nii.gz T1_flip.nii.gz
 sleep 5
 
 flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v
@@ -82,7 +84,7 @@ do
    sleep 5
    
    echo ****FLIPING FOR FSL
-   /ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl \${im}.nii.gz \${im}_flip.nii.gz
+   orientLAS \${im}.nii.gz \${im}_flip.nii.gz
    sleep 5
    
    echo ****NOW FLIRTING
@@ -99,48 +101,28 @@ sleep 5
 labelconvert aparc.a2009s+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /ifs/scratch/pimri/posnerlab/app/mrtrix3/src/connectome/tables/fs_a2009s.txt nodes_aparc.a2009s+aseg2.mif.gz -force
 sleep 5
 #labelsgmfix nodes.mif.gz T1_diff.nii.gz fs_default.txt nodes_fixSGM.mif.gz -sgm_amyg_hipp -premasked -verbose -nthreads 12
-############
-" >$CMD1
 
 
-#batch submission
-echo $CMD1 >> $CMD1_batch
-done
-
-prepid=`$code/fsl_sub_hpc_1 -s smp,$nthreads -l $logdir -t ${CMD1_batch}`
-echo ${CMD1_batch}
-
-for s in `cat $subjectlist`
-do
-   CMD2=$logdir/cmd.tckgensift.${s}
-   rm -rf $CMD2
-
-   echo "#!/bin/bash
-   source ~/.bashrc
-   ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=$nthreads
-   echo NOW WARPING FOR SUBJECT ${s}
-   SUBJECT=${s}_1mm_flair
-    cd /ifs/scratch/pimri/posnerlab/1anal/IDP/fs/\${SUBJECT}/dmri2
 #### tckgen
-rm -rf mr_track_20M.tck
-if [ -e mr_track_10M_SIFT2.tck ]; then
-tracknum=\`tckinfo mr_track_10M_SIFT2.tck | grep max_num_tracks | grep -o 10000000\`
+#rm -rf mr_track_20M.tck
+if [ -e mr_track_10M_SIFT.tck ]; then
+tracknum=\`tckinfo mr_track_10M_SIFT.tck | grep max_num_tracks | grep -o 10000000\`
   if [ \$tracknum != 10000000 ]; then
-  tckgen WM_FODs.mif.gz /tmp/mr_track_20M2.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -number 20M -force -nthreads $nthreads
-  tcksift -act 5tt2.mif.gz /tmp/mr_track_20M2.tck WM_FODs.mif.gz mr_track_10M_SIFT2.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
+  tckgen WM_FODs.mif.gz /tmp/mr_track_50M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -number 50M -force -nthreads $nthreads
+  tcksift -act 5tt2.mif.gz /tmp/mr_track_50M.tck WM_FODs.mif.gz mr_track_10M_SIFT.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
   else 
   echo 'sift done'*******
   fi
 else  
-tckgen WM_FODs.mif.gz /tmp/mr_track_20M2.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -number 20M -force -nthreads $nthreads
-tcksift -act 5tt2.mif.gz /tmp/mr_track_20M2.tck WM_FODs.mif.gz mr_track_10M_SIFT2.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
+tckgen WM_FODs.mif.gz /tmp/mr_track_50M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -number 50M -force -nthreads $nthreads
+tcksift -act 5tt2.mif.gz /tmp/mr_track_50M.tck WM_FODs.mif.gz mr_track_10M_SIFT.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
 fi
 #### tck2connectome
 for im in aparc+aseg aparc.a2009s+aseg
 do
-tck2connectome -force -zero_diagonal -nthreads $nthreads mr_track_10M_SIFT2.tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_count.csv 
-tck2connectome -force -zero_diagonal -scale_length -stat_edge mean -nthreads $nthreads mr_track_10M_SIFT2.tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_length.csv 
-tck2connectome -force -zero_diagonal -scale_invnodevol -nthreads $nthreads mr_track_10M_SIFT2.tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_volumeadj.csv 
+tck2connectome -force -zero_diagonal -nthreads $nthreads mr_track_10M_SIFT.tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_count.csv 
+tck2connectome -force -zero_diagonal -scale_length -stat_edge mean -nthreads $nthreads mr_track_10M_SIFT.tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_length.csv 
+tck2connectome -force -zero_diagonal -scale_invnodevol -nthreads $nthreads mr_track_10M_SIFT.tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_volumeadj.csv 
 done
 ### save scratch space
 #      if [ -e mr_sift_10M_connectome_aparc+aseg_count.csv ] ; then rm mr_track_100M.tck 
@@ -148,9 +130,9 @@ done
 #      fi
       
 echo "END OF TCKGEN AND SIFT"
-" > $CMD2
-echo $CMD2 >> $CMD2_batch
-chmod +x $CMD2
+" > $CMD
+echo $CMD >> $CMD_batch
+chmod +x $CMD
 
 done
 
@@ -158,3 +140,39 @@ done
 #echo $jobid >> $monk/data/cmd/jobid
 
 #$code/fsl_sub_hpc_1 -N connectome -s smp,$nthreads -j $prepid -l $logdir -t ${CMD2_batch}
+
+
+split -l 30 $CMD_batch batchsplit
+
+for b in `ls batchsplit*`
+do
+launch_script=/scratch/03263/jcha9928/data/idp/code/idp_stampede2/job/script_${b}
+
+cat<<EOM > $launch_script
+#!/bin/bash
+#SBATCH -J mrtrix1           # Job name
+#SBATCH -o ./job/mrx1.o%j       # Name of stdout output file
+#SBATCH -e ./job/mrx1.e%j       # Name of stderr error file
+#SBATCH -p normal          # Queue (partition) name
+#SBATCH -N `wc -l $b | awk '{print $1}'`               # Total # of nodes
+#SBATCH -n `wc -l $b | awk '{print $1}'`            # Total # of mpi tasks
+#SBATCH -t 24:00:00        # Run time (hh:mm:ss)
+#SBATCH --mail-user=cha.jiook@gmail.com
+#SBATCH --mail-type=all    # Send email at begin and end of job
+#SBATCH -A TG-TRA120004
+# Other commands must follow all #SBATCH directives...
+module list
+pwd
+date
+module load launcher
+sleep 3
+export LAUNCHER_PLUGIN_DIR=\$LAUNCHER_DIR/plugins
+export LAUNCHER_RMI=SLURM
+export LAUNCHER_JOB_FILE=`echo $b`
+# Launch MPI code...
+\$LAUNCHER_DIR/paramrun
+EOM
+
+echo sbatch $launch_script
+done
+
