@@ -7,9 +7,9 @@ while [ $2 != -- ] ; do
     -t)
       nthreads=$2;
       shift;;
-    -b)
-      nbatch=$2;
-      shift;;
+    #-b)
+    #  nbatch=$2;
+    #  shift;;
    esac
     shift
 done
