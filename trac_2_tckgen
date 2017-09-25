@@ -14,7 +14,7 @@ while [ $2 != -- ] ; do
     shift
 done
 IDP=/scratch/03263/jcha9928/data/idp/
-logdir=/scratch/03263/jcha9928/data/idp//code/idp/job
+logdir=/scratch/03263/jcha9928/data/idp//code/idp_stampede2/job
 CMD_batch=$logdir/batch${nbatch}_5ttgen
 #CMD2_batch=$logdir/batch${nbatch}_tckgen
 
