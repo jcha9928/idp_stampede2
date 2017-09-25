@@ -120,6 +120,7 @@ echo $CMD_batch
 #$code/fsl_sub_hpc_3 -s smp,$threads -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
 #$code/fsl_sub_hpc_6 -l /ifs/scratch/pimri/posnerlab/1anal/IDP/code/idp/job -t $CMD_batch
 
+split -l 30 $CMD_batch batch
 
 launch_script=/scratch/03263/jcha9928/data/idp/code/idp_stampede2/job/batch_script
 
