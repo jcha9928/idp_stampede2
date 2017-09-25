@@ -25,6 +25,7 @@ cat<<EOC >$CMD
 source ~/.bashrc
 workingdir=/scratch/03263/jcha9928/data/idp/fs/${SUBJECT}/dmri3
 echo $workingdir
+cd $workingdir
 
 if [ ! -e \$workingdir ]; then mkdir \$workingdir; fi
 cd \$workingdir
