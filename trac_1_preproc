@@ -66,7 +66,7 @@ cp $IDP/data/$s/dti.bval ./
 
 #%% 7. generating b0 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #if [ ! -e mr_meanb0.mif.gz ];then
-     dwiextract mr_dwi_denoised_preproc_biasCorr.mif.gz - -bzero -nthreads $threadsX2 | mrmath - mean -force mr_meanb0.mif.gz -axis 3 -nthreads $threads
+     dwiextract mr_dwi_denoised_preproc_biasCorr.mif.gz - -bzero -nthreads $threads | mrmath - mean -force mr_meanb0.mif.gz -axis 3 -nthreads $threads
 #fi
 
 #%% 8. upsampling %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -86,17 +86,17 @@ done
 
 #%% FOD%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #% make sure to use "DILATED MASK" for FOD generation
-if [ ! -e mr_dilate_mask.mif.gz ];then
+#if [ ! -e mr_dilate_mask.mif.gz ];then
     dwi2mask mr_dwi_denoised_preproc_biasCorr.mif.gz - | maskfilter - dilate -npass 5 -force mr_dilate_mask.mif.gz -nthreads $threads
-fi
+#fi
 
-if [ ! -e WM_FODs.mif.gz ];then
+#if [ ! -e WM_FODs.mif.gz ];then
    dwi2fod msmt_csd mr_dwi_denoised_preproc_biasCorr.mif.gz response_wm.txt WM_FODs.mif.gz response_gm.txt gm.mif.gz response_csf.txt csf.mif.gz -mask mr_dilate_mask.mif.gz -force -nthreads $threads
-fi
+#fi
 
-if [ ! -e tissueRGB.mif.gz ]; then
+#if [ ! -e tissueRGB.mif.gz ]; then
    mrconvert WM_FODs.mif.gz - -coord 3 0 | mrcat csf.mif.gz gm.mif.gz - tissueRGB.mif.gz -axis 3
-fi
+#fi
 
 mrconvert mr_dwi_denoised_preproc_biasCorr.mif.gz mr_dwi_denoised_preproc_biasCorr.nii.gz -nthreads $threads
 mrconvert mr_dilate_mask.mif.gz mr_dilate_mask.nii.gz -nthreads $threads
