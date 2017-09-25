@@ -1,7 +1,7 @@
 #!/bin/bash
 
 list=$1
-threads=1
+threads=272
 #threadsX2=$((${threads}*2))
 
 #IDP=/ifs/scratch/pimri/posnerlab/1anal/IDP
@@ -49,7 +49,8 @@ cp $IDP/data/$s/dti.bval ./
 
 #%% 4. dwipreproc -eddy current
 #if [ ! -e mr_dwi_denoised_preproc.mif.gz ];then
-    dwipreproc PA mr_dwi_denoised.mif.gz -force mr_dwi_denoised_preproc.mif.gz -rpe_none -nthreads $threads
+    #dwipreproc PA mr_dwi_denoised.mif.gz -force mr_dwi_denoised_preproc.mif.gz -rpe_none -nthreads $threads
+    dwipreproc -force -rpe_none -pe_dir PA mr_dwi_denoised.mif.gz mr_dwi_denoised_preproc.mif.gz -nthreads $threads
 #fi
 
 #%% 5. mask and bias field correction
@@ -151,5 +152,5 @@ export LAUNCHER_JOB_FILE=`echo \$CMD_batch`
 \$LAUNCHER_DIR/paramrun
 
 EOM
-echo $launch_script
+sbatch $launch_script
 
