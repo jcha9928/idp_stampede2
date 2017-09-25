@@ -15,11 +15,11 @@ while [ $2 != -- ] ; do
 done
 IDP=/scratch/03263/jcha9928/data/idp/
 logdir=/scratch/03263/jcha9928/data/idp//code/idp/job
-CMD1_batch=$logdir/batch${nbatch}_5ttgen
-CMD2_batch=$logdir/batch${nbatch}_tckgen
+CMD_batch=$logdir/batch${nbatch}_5ttgen
+#CMD2_batch=$logdir/batch${nbatch}_tckgen
 
-rm -rf $CMD1_batch
-rm -rf $CMD2_batch
+rm -rf $CMD_batch
+#rm -rf $CMD2_batch
 
 #nthreadsX2=$((${nthreads}*2))
 
@@ -30,8 +30,8 @@ do
 
 
 
-CMD1=$logdir/cmd.5ttgen.${s}
-rm -rf $CMD1
+CMD=$logdir/mrtrix2.${s}
+rm -rf $CMD
 
 echo "#!/bin/bash
 source ~/.bashrc
