@@ -105,17 +105,17 @@ sleep 5
 
 #### tckgen
 #rm -rf mr_track_20M.tck
-if [ -e mr_track_10M_SIFT.tck ]; then
-tracknum=\`tckinfo mr_track_10M_SIFT.tck | grep max_num_tracks | grep -o 10000000\`
+if [ -e mr_track_10M_SIFT2.tck ]; then
+tracknum=\`tckinfo mr_track_10M_SIFT2.tck | grep max_num_tracks | grep -o 10000000\`
   if [ \$tracknum != 10000000 ]; then
-  tckgen WM_FODs.mif.gz /tmp/mr_track_50M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 50M -force -nthreads $nthreads
-  tcksift -act 5tt2.mif.gz /tmp/mr_track_50M.tck WM_FODs.mif.gz mr_track_10M_SIFT.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
+  tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads
+  tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz mr_track_10M_SIFT2.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
   else 
   echo 'sift done'*******
   fi
 else  
-tckgen WM_FODs.mif.gz /tmp/mr_track_50M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 50M -force -nthreads $nthreads
-tcksift -act 5tt2.mif.gz /tmp/mr_track_50M.tck WM_FODs.mif.gz mr_track_10M_SIFT.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
+tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads
+tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz mr_track_10M_SIFT2.tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'*******
 fi
 #### tck2connectome
 for im in aparc+aseg aparc.a2009s+aseg
@@ -156,7 +156,7 @@ cat<<EOM > $launch_script
 #SBATCH -p normal          # Queue (partition) name
 #SBATCH -N `wc -l $b | awk '{print $1}'`               # Total # of nodes
 #SBATCH -n `wc -l $b | awk '{print $1}'`            # Total # of mpi tasks
-#SBATCH -t 12:00:00        # Run time (hh:mm:ss)
+#SBATCH -t 4:00:00        # Run time (hh:mm:ss)
 #SBATCH --mail-user=cha.jiook@gmail.com
 #SBATCH --mail-type=all    # Send email at begin and end of job
 #SBATCH -A TG-TRA120004
