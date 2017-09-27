@@ -67,13 +67,29 @@ mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && orientLAS /tmp/tmp.nii.gz T1_flip.n
 sleep 5
 
 flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v >> log
+
 sleep 5
 
-5ttgen fsl T1_2diff_flt.nii.gz 5tt2.mif.gz -force -nthreads $nthreads >> log
+#export FSLSUBALREADYRUN=true
+
+##########################testing
+5ttgen fsl T1_flip.nii.gz 5tt_t1.nii.gz -debug -force >> log
 sleep 5
 
-mrconvert 5tt2.mif.gz 5tt2.nii.gz -force >> log
+flirt -in 5tt_t1.nii.gz -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour >> log
 sleep 5
+
+mrconvert 5tt_diff.nii.gz 5tt2.mif.gz -force -nthreads $nthreads >> log
+sleep 5 
+
+cp 5tt_diff.nii.gz 5tt2.nii.gz
+
+############################
+#5ttgen fsl T1_2diff_flt.nii.gz 5tt2.mif.gz -force -nthreads $nthreads >> log
+#sleep 5
+
+#mrconvert 5tt2.mif.gz 5tt2.nii.gz -force >> log
+#sleep 5
 
 5tt2gmwmi 5tt2.mif.gz 5tt2_gmwmi_mask.mif.gz -nthreads $nthreads -force >> log
 sleep 5
@@ -178,6 +194,6 @@ export LAUNCHER_JOB_FILE=`echo $b`
 \$LAUNCHER_DIR/paramrun
 EOM
 
-sbatch $launch_script
+echo sbatch $launch_script
 done
 
