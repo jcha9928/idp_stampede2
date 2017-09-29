@@ -45,79 +45,79 @@ cd $IDP/fs/\${SUBJECT}/dmri3
 mkdir xfm
 
 ### flirt 
-echo *****NOW GENERATING ANAT2DIFF.FLT.MAT ***** >> log
-mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz >> log
+echo *****NOW GENERATING ANAT2DIFF.FLT.MAT ***** 
+mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz 
 sleep 5
 
 #/ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl  brain_anat_orig.nii.gz brain_anat.nii.gz
-orientLAS brain_anat_orig.nii.gz brain_anat.nii.gz >> log 
+orientLAS brain_anat_orig.nii.gz brain_anat.nii.gz  
 sleep 5
 
-mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force >> log
+mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force 
 sleep 5
 
-flirt -in brain_anat.nii.gz -ref mr_meanb0.nii.gz -out brain_anat2diff -omat anat2diff.flt.mat -v >> log
+flirt -in brain_anat.nii.gz -ref mr_meanb0.nii.gz -out brain_anat2diff -omat anat2diff.flt.mat -v 
 sleep 5
 
 
 ### 5TTGEN
-echo ***** NOW 5TTGEN ***** >> log
+echo ***** NOW 5TTGEN ***** 
 
-mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && orientLAS /tmp/tmp.nii.gz T1_flip.nii.gz >> log
+mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && orientLAS /tmp/tmp.nii.gz T1_flip.nii.gz 
 sleep 5
 
-flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v >> log
+flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v 
 
 sleep 5
 
 #export FSLSUBALREADYRUN=true
 
 ##########################testing
-5ttgen fsl T1_flip.nii.gz 5tt_t1.nii.gz -debug -force >> log
+5ttgen fsl T1_flip.nii.gz 5tt_t1.nii.gz -debug -force 
 sleep 5
 
-flirt -in 5tt_t1.nii.gz -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour >> log
+flirt -in 5tt_t1.nii.gz -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour 
 sleep 5
 
-mrconvert 5tt_diff.nii.gz 5tt2.mif.gz -force -nthreads $nthreads >> log
+mrconvert 5tt_diff.nii.gz 5tt2.mif.gz -force -nthreads $nthreads 
 sleep 5 
 
 cp 5tt_diff.nii.gz 5tt2.nii.gz
 
 ############################
-#5ttgen fsl T1_2diff_flt.nii.gz 5tt2.mif.gz -force -nthreads $nthreads >> log
+#5ttgen fsl T1_2diff_flt.nii.gz 5tt2.mif.gz -force -nthreads $nthreads 
 #sleep 5
 
-#mrconvert 5tt2.mif.gz 5tt2.nii.gz -force >> log
+#mrconvert 5tt2.mif.gz 5tt2.nii.gz -force 
 #sleep 5
 
-5tt2gmwmi 5tt2.mif.gz 5tt2_gmwmi_mask.mif.gz -nthreads $nthreads -force >> log
+5tt2gmwmi 5tt2.mif.gz 5tt2_gmwmi_mask.mif.gz -nthreads $nthreads -force 
 sleep 5
 
 ### APARC+ASEG to diff
 for im in aparc+aseg aparc.a2009s+aseg
 do
    echo ****NOW CONVERTING MGZ TO NII
-   mri_convert ../mri/\${im}.mgz \${im}.nii.gz >> log
+   mri_convert ../mri/\${im}.mgz \${im}.nii.gz 
    sleep 5
    
    echo ****FLIPING FOR FSL
-   orientLAS \${im}.nii.gz \${im}_flip.nii.gz >> log
+   orientLAS \${im}.nii.gz \${im}_flip.nii.gz 
    sleep 5
    
    echo ****NOW FLIRTING
-   flirt -in \${im}_flip.nii.gz -out \${im}_2_diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour >> log
+   flirt -in \${im}_flip.nii.gz -out \${im}_2_diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour 
    sleep 5
 
 done
 
 
 ### labelconvert for aparc+aseg and aparc.a2009+aseg
-labelconvert aparc+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_default.txt nodes_aparc+aseg2.mif.gz -force >> log
+labelconvert aparc+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_default.txt nodes_aparc+aseg2.mif.gz -force
 sleep 5
 
 labelconvert aparc.a2009s+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt  /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_a2009s.txt \
-nodes_aparc.a2009s+aseg2.mif.gz -force  >> log
+nodes_aparc.a2009s+aseg2.mif.gz -force  
 sleep 5
 #labelsgmfix nodes.mif.gz T1_diff.nii.gz fs_default.txt nodes_fixSGM.mif.gz -sgm_amyg_hipp -premasked -verbose -nthreads 12
 
@@ -129,21 +129,21 @@ tck=mr_track_10M_SIFT2.tck
 if [ -e \$tck ]; then
 tracknum=\`tckinfo $tck | grep max_num_tracks | grep -o 10000000\`
   if [ \$tracknum != 10000000 ]; then
-  tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads >> log
-  tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* >> log
+  tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads 
+  tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
   else 
   echo 'sift done'*******
   fi
 else  
-tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads >> log
-tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* >> log
+tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads
+tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
 fi
 #### tck2connectome
 for im in aparc+aseg aparc.a2009s+aseg
 do
-tck2connectome -force -zero_diagonal -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_count.csv  >> log
-tck2connectome -force -zero_diagonal -scale_length -stat_edge mean -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_length.csv  >> log
-tck2connectome -force -zero_diagonal -scale_invnodevol -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_volumeadj.csv  >> log
+tck2connectome -force -zero_diagonal -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_count.csv  
+tck2connectome -force -zero_diagonal -scale_length -stat_edge mean -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_length.csv  
+tck2connectome -force -zero_diagonal -scale_invnodevol -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_volumeadj.csv 
 done
 ### save scratch space
 #      if [ -e mr_sift_10M_connectome_aparc+aseg_count.csv ] ; then rm mr_track_100M.tck 
@@ -152,7 +152,7 @@ done
       
 echo "END OF TCKGEN AND SIFT"
 " > $CMD
-echo "$CMD > out.o\$LAUNCHER_JID" >> $CMD_batch
+echo "$CMD > ./job/out.o${s}" >> $CMD_batch
 chmod +x $CMD
 
 done
