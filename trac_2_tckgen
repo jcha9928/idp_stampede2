@@ -129,18 +129,31 @@ tck=mr_track_10M_SIFT2.tck
 if [ -e \$tck ]; then
 tracknum=\`tckinfo $tck | grep max_num_tracks | grep -o 10000000\`
   if [ \$tracknum != 10000000 ]; then
+  sleep 5
+  echo tckgen....................................................................
   tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads 
+  
+  sleep 5
+  echo tcksift....................................................................
   tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
   else 
   echo 'sift done'*******
   fi
-else  
+else 
+
+sleep 5
+echo tckgen....................................................................
 tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads
+
+sleep 5
+echo tcksift....................................................................
 tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
 fi
 #### tck2connectome
 for im in aparc+aseg aparc.a2009s+aseg
 do
+sleep 5
+echo tck2connectome....................................................................
 tck2connectome -force -zero_diagonal -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_count.csv  
 tck2connectome -force -zero_diagonal -scale_length -stat_edge mean -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_length.csv  
 tck2connectome -force -zero_diagonal -scale_invnodevol -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_volumeadj.csv 
