@@ -152,7 +152,7 @@ done
       
 echo "END OF TCKGEN AND SIFT"
 " > $CMD
-echo $CMD >> $CMD_batch
+echo "$CMD > out.o\$LAUNCHER_JID" >> $CMD_batch
 chmod +x $CMD
 
 done
