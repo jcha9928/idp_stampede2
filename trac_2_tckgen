@@ -197,7 +197,7 @@ cat<<EOM > $launch_script
 #SBATCH -t 4:00:00        # Run time (hh:mm:ss)
 #SBATCH --mail-user=cha.jiook@gmail.com
 #SBATCH --mail-type=all    # Send email at begin and end of job
-#SBATCH -A TG-TRA120004
+#SBATCH -A TG-IBN170015
 # Other commands must follow all #SBATCH directives...
 module list
 pwd
