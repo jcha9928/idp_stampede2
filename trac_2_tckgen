@@ -76,8 +76,10 @@ sleep 5
 5ttgen fsl T1_flip.nii.gz 5tt_t1.nii.gz -debug -force 
 sleep 5
 
-flirt -in 5tt_t1.nii.gz -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour 
-sleep 5
+flirt -in 5tt_t1.nii.gz -ref T1_flip.nii.gz -out 5tt_t1_reshape -interp nearestneighbour
+sleep 3
+
+flirt -in 5tt_t1_reshape -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour
 
 mrconvert 5tt_diff.nii.gz 5tt2.mif.gz -force -nthreads $nthreads 
 sleep 5 
@@ -125,6 +127,8 @@ sleep 5
 #### tckgen
 #rm -rf mr_track_20M.tck
 tck=mr_track_10M_SIFT2.tck
+
+rm $tck
 
 if [ -e \$tck ]; then
 tracknum=\`tckinfo $tck | grep max_num_tracks | grep -o 10000000\`
