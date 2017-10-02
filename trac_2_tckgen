@@ -174,7 +174,11 @@ do
 sleep 5
 echo tck2connectome....................................................................
 tck2connectome -force -zero_diagonal -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_count.csv  
+sleep 2
+
 tck2connectome -force -zero_diagonal -scale_length -stat_edge mean -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_length.csv  
+sleep2
+
 tck2connectome -force -zero_diagonal -scale_invnodevol -nthreads $nthreads \$tck nodes_\${im}2.mif.gz mr_sift_10M_connectome_\${im}_volumeadj.csv 
 done
 ### save scratch space
