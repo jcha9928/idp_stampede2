@@ -140,11 +140,11 @@ tracknum=\`tckinfo $tck | grep max_num_tracks | grep -o 10000000\`
   if [ \$tracknum != 10000000 ]; then
   sleep 5
   echo tckgen....................................................................
-  tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads 
+  tckgen WM_FODs.mif.gz mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads 
   
   sleep 5
   echo tcksift....................................................................
-  tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
+  tcksift -act 5tt2.mif.gz mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
   else 
   echo 'sift done'*******
   fi
@@ -152,11 +152,11 @@ else
 
 sleep 5
 echo tckgen....................................................................
-tckgen WM_FODs.mif.gz /tmp/mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads
+tckgen WM_FODs.mif.gz mr_track_20M.tck -act 5tt2.mif.gz -backtrack -crop_at_gmwmi -seed_dynamic WM_FODs.mif.gz -maxlength 250 -minlength 30 -select 20M -force -nthreads $nthreads
 
 sleep 5
 echo tcksift....................................................................
-tcksift -act 5tt2.mif.gz /tmp/mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
+tcksift -act 5tt2.mif.gz mr_track_20M.tck WM_FODs.mif.gz \$tck -term_number 10M -force -nthreads $nthreads && echo 'sift done'******* 
 fi
 #### tck2connectome
 for im in aparc+aseg aparc.a2009s+aseg
