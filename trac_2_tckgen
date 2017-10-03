@@ -1,5 +1,5 @@
 #! /bin/bash
-## usage: bash trac_2_tckgen -t 6 -b 0
+## usage: bash trac_2_tckgen -t 272
 
 
 while [ $2 != -- ] ; do
