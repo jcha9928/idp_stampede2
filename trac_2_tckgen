@@ -82,12 +82,12 @@ sleep 2
 flirt -in 5tt_t1_split0000.nii.gz -ref mr_meanb0 -omat 5tt_to_diff.mat -out 5tt_diff 
 sleep 2
 
-for im in `imglob 5tt_t1_split000[0-9].nii.gz`; do
+for im in \`imglob 5tt_t1_split000[0-9].nii.gz\`; do
    flirt -in ${im} -out ${im}_diff -ref mr_meanb0 -applyxfm -init 5tt_to_diff.mat
    done
 sleep 2
  
-fslmerge -t 5tt_diff `imglob 5tt_t1_split000[0-9]_diff.nii.gz`
+fslmerge -t 5tt_diff \`imglob 5tt_t1_split000[0-9]_diff.nii.gz\`
 sleep 2
 
 
