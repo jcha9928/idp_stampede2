@@ -46,100 +46,90 @@ mkdir xfm
 
 ### flirt 
 echo *****NOW GENERATING ANAT2DIFF.FLT.MAT ***** 
-#####mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz 
-#####sleep 5
+mri_convert ../mri/brain.mgz brain_anat_orig.nii.gz 
+sleep 5
 
 #/ifs/scratch/pimri/posnerlab/freesurfer_dev/freesurfer/bin/flip4fsl  brain_anat_orig.nii.gz brain_anat.nii.gz
-#####orientLAS brain_anat_orig.nii.gz brain_anat.nii.gz  
-#####sleep 5
+orientLAS brain_anat_orig.nii.gz brain_anat.nii.gz  
+sleep 5
 
-#####mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force 
-#####sleep 5
+mrconvert mr_meanb0.mif.gz mr_meanb0.nii.gz -force 
+sleep 5
 
-#####flirt -in brain_anat.nii.gz -ref mr_meanb0.nii.gz -out brain_anat2diff -omat anat2diff.flt.mat -v 
-#####sleep 5
+flirt -in brain_anat.nii.gz -ref mr_meanb0.nii.gz -out brain_anat2diff -omat anat2diff.flt.mat -v 
+sleep 5
 
 
-### 5TTGEN
+### 5TTGEN################################################################
 echo ***** NOW 5TTGEN ***** 
 
-#####mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && orientLAS /tmp/tmp.nii.gz T1_flip.nii.gz 
-#####sleep 5
+mri_convert ../mri/T1.mgz /tmp/tmp.nii.gz && orientLAS /tmp/tmp.nii.gz T1_flip.nii.gz 
+sleep 2
 
-#####flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v 
+flirt -in T1_flip.nii.gz -out T1_2diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -v 
 
-#####sleep 5
+sleep 2
 
-#export FSLSUBALREADYRUN=true
+export FSLSUBALREADYRUN=true
 
 ##########################testing
-#####5ttgen fsl T1_flip.nii.gz 5tt_t1.nii.gz -debug -force 
-#####sleep 5
+5ttgen fsl T1_flip.nii.gz 5tt_t1.nii.gz -debug -force 
+sleep 5
 
-#####flirt -in 5tt_t1.nii.gz -ref T1_flip.nii.gz -out 5tt_t1_reshape -applyisoxfm 1 -interp nearestneighbour
-#####sleep 3
+fslsplit 5tt_t1.nii.gz 5tt_t1_split -t
+sleep 2
 
-#####flirt -in 5tt_t1.nii.gz -ref T1_flip.nii.gz -omat 5tt_to_t1_reshape -interp nearestneighbour
-#####sleep 2
-#####fslsplit 5tt_t1.nii.gz 5tt_t1_split -t
-#####sleep 2
-#####for im in `imglob imglob 5tt_t1_split*`; do
- #####  flirt -in ${im} -out ${im}_reshape -ref T1_flip.nii.gz -applyxfm -init 5tt_to_t1_reshape -interp nearestneighbour
-#####   sleep 2
-#####   done
-#####fslmerge -t 5tt_t1_reshape `imglob 5tt_t1_split*reshape*`
-#####sleep 2
+flirt -in 5tt_t1_split0000.nii.gz -ref mr_meanb0 -omat 5tt_to_diff -out 5tt_diff 
+sleep 2
 
-#####flirt -in 5tt_t1_reshape -out 5tt_diff -ref mr_meanb0 -applyxfm -init anat2diff.flt.mat -interp nearestneighbour
+for im in `imglob 5tt_t1_split000[0-9].nii.gz`; do
+   flirt -in ${im} -out ${im}_diff -ref mr_meanb0 -applyxfm -init 5tt_to_diff 
+   done
+sleep 2
+ 
+fslmerge -t 5tt_diff `imglob 5tt_t1_split000[0-9]_diff.nii.gz`
+sleep 2
 
-#flirt -in 5tt_t1_reshape -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour
-#flirt -in 5tt_t1_reshape -out 5tt_diff.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour
-#fslsplit 5tt_t1_reshape tmp_5tt_t1_reshape -t 
 
-#####mrconvert 5tt_diff.nii.gz 5tt2.mif.gz -force -nthreads $nthreads 
-#####sleep 5 
+mrconvert 5tt_diff.nii.gz 5tt2.mif.gz -force -nthreads $nthreads 
+sleep 2 
 
-#####cp 5tt_diff.nii.gz 5tt2.nii.gz
+imcp 5tt_diff.nii.gz 5tt2.nii.gz
+sleep 2
+#############################################################
 
-############################
-#5ttgen fsl T1_2diff_flt.nii.gz 5tt2.mif.gz -force -nthreads $nthreads 
-#sleep 5
-
-#mrconvert 5tt2.mif.gz 5tt2.nii.gz -force 
-#sleep 5
-
-#####5tt2gmwmi 5tt2.mif.gz 5tt2_gmwmi_mask.mif.gz -nthreads $nthreads -force 
-#####sleep 5
+5tt2gmwmi 5tt2.mif.gz 5tt2_gmwmi_mask.mif.gz -nthreads $nthreads -force 
+sleep 5
 
 ### APARC+ASEG to diff
-#####for im in aparc+aseg aparc.a2009s+aseg
-#####do
-#####   echo ****NOW CONVERTING MGZ TO NII
-#####   mri_convert ../mri/\${im}.mgz \${im}.nii.gz 
-#####   sleep 5
+for im in aparc+aseg aparc.a2009s+aseg
+do
+   echo ****NOW CONVERTING MGZ TO NII
+   mri_convert ../mri/\${im}.mgz \${im}.nii.gz 
+   sleep 5
    
- #####  echo ****FLIPING FOR FSL
- #####  orientLAS \${im}.nii.gz \${im}_flip.nii.gz 
- #####  sleep 5
+   echo ****FLIPING FOR FSL
+   orientLAS \${im}.nii.gz \${im}_flip.nii.gz 
+   sleep 5
    
- #####  echo ****NOW FLIRTING
- #####  flirt -in \${im}_flip.nii.gz -out \${im}_2_diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour 
- #####  sleep 5
+   echo ****NOW FLIRTING
+   flirt -in \${im}_flip.nii.gz -out \${im}_2_diff_flt.nii.gz -ref mr_meanb0.nii.gz -applyxfm -init anat2diff.flt.mat -interp nearestneighbour 
+   sleep 5
 
-#####done
+done
 
 
 ### labelconvert for aparc+aseg and aparc.a2009+aseg
-#####labelconvert aparc+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_default.txt nodes_aparc+aseg2.mif.gz -force
-#####sleep 5
+labelconvert aparc+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_default.txt nodes_aparc+aseg2.mif.gz -force
+sleep 5
 
-#####labelconvert aparc.a2009s+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt  /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_a2009s.txt \
-#####nodes_aparc.a2009s+aseg2.mif.gz -force  
-#####sleep 5
+labelconvert aparc.a2009s+aseg_2_diff_flt.nii.gz $FREESURFER_HOME/FreeSurferColorLUT.txt  /work/03263/jcha9928/stampede2/app/mrtrix3/share/mrtrix3/labelconvert/fs_a2009s.txt \
+nodes_aparc.a2009s+aseg2.mif.gz -force  
+sleep 5
 #labelsgmfix nodes.mif.gz T1_diff.nii.gz fs_default.txt nodes_fixSGM.mif.gz -sgm_amyg_hipp -premasked -verbose -nthreads 12
 
 
-#### tckgen
+#### tckgen###############################################################
 #rm -rf mr_track_20M.tck
 tck=mr_track_10M_SIFT2.tck
 
